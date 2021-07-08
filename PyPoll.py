@@ -35,54 +35,78 @@ import csv
 import os
 file_to_load = os.path.join("Resources", "election_results.csv")
 file_to_save = os.path.join("analysis", "election_analysis.txt")
+
+# initialize a total vote counter.
+total_votes = 0
+
+# Candidate options
+candidate_options = []
+
+# Need to declare an empty dictionary as well to count each candidate's votes
+# later we instantiate a candidate as a key for the dictionary in the if statement
+candidate_votes = {}
+
+#Winning candidate and winning count tracker
+winning_candidate = ""
+winning_count = 0
+winning_percentage = 0
+
+# open election results & read the file
 with open(file_to_load) as election_data:
     
-
-#__________________________________________
-
-# Write to files in python
-
-#file_to_save = os.path.join("analysis", "election_analysis.txt")
-# Using the open() function with the "w" mode we will write data to the file.
-#open(file_to_save, "w")
-
-# This has created the .txt file "election_analysis.txt"
-# Next we will add "Hello World" to the first line of this txt file.
-# __________________________________________
-
-#file_to_save = os.path.join("analysis", "election_analysis.txt")
-
-# Using the open() statement open the file as a text file.
-#outfile = open(file_to_save, "w")
-
-# Write some data to the file
-#outfile.write("Hello World")
-
-# Close the file
-#outfile.close()
-
-# Using the 'with' statement can make code more clean and concise
-# Instead of using the open() and close() functions
-
-#________________________________________________
-
-#file_to_save = os.path.join("analysis", "election_analysis.txt")
-
-# Using the with statement to open the file as a text file
-#with open(file_to_save, "w") as txt_file:
-    #write some data 
- #   txt_file.write("Counties in the Election")
-  #  txt_file.write("\n__________________________")
-   # txt_file.write("\nArapahoe\nDenver\nJefferson")
-
-
 
 # To do: read and analyze the data here.
 # Read the file object with the reader function.
     file_reader = csv.reader(election_data)
 
-    #for row in file_reader:
-        #print(row)
-
+    # Read the header row.
     headers = next(file_reader)
-    print(headers)  
+
+    # print each row in the csv file
+    for row in file_reader:
+        # add to the total vote count.
+        total_votes += 1
+        #print the candidate name from each row
+        candidate_name = row[2]
+        # If the candidate does not match any existing candidate..
+        if candidate_name not in candidate_options:
+            #add the candidate name to the candidate list.
+            candidate_options.append(candidate_name)
+            #Begin tracking that candidate's vote count by setting each candidate's vote to zero
+            candidate_votes[candidate_name] = 0
+            #then add a vote to that candidate's count 
+            #this needs to be aligned with the if statement, inside the for loop in order
+            #to increment a vote count every time a name appears in a row
+        candidate_votes[candidate_name] += 1
+    with open(file_to_save, "w") as txt_file:
+        election_results = (
+        f"\nElection Results\n"
+        f"-------------------------\n"
+        f"Total Votes: {total_votes:,}\n"
+        f"-------------------------\n")
+    print(election_results, end="")
+    # Save the final vote count to the text file.
+    txt_file.write(election_results)
+    #print the candidate name and percentage of votes
+    for candidate_name in candidate_votes:
+        votes = candidate_votes[candidate_name]
+        vote_percentage = float(votes) / float(total_votes) * 100
+            #print(f"{candidate_name}: received {vote_percentage:.1f}% of the vote.")
+        #print(f"{candidate_name}: {vote_percentage:.1f}% ({votes:,})\n")
+
+            #Determine winning vote count and candidate
+        if (votes > winning_count) and (vote_percentage > winning_percentage):
+                #if true then we set winning_count = votes and winning_percentage = vote_percentage
+            winning_count = votes
+            winning_percentage = vote_percentage
+            winning_candidate = candidate_name
+    winning_candidate_summary = (
+        f"-------------------------\n"
+        f"Winner: {winning_candidate}\n"
+        f"Winning Vote Count: {winning_count:,}\n"
+        f"Winning Percentage: {winning_percentage:.1f}%\n"
+        f"-------------------------\n")
+
+    #print(winning_candidate_summary)
+
+
